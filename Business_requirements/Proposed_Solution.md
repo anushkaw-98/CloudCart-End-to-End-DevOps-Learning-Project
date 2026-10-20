@@ -48,7 +48,7 @@ The exact ingress implementation and network path will be confirmed during detai
 Developer
     |
     v
-GitHub feature branch
+Git feature branch
     |
     v
 Pull request + review
@@ -82,8 +82,8 @@ Infrastructure changes use a controlled Terraform workflow: formatting and valid
 | Azure Key Vault | Store secrets, keys, and certificates | Centralizes sensitive configuration and access control. | Prefer managed identity or workload identity over long-lived credentials; define rotation and access policies. |
 | Azure Storage | Terraform remote state and other approved storage needs | Can hold Terraform state in a controlled remote backend. | Enable appropriate access controls, versioning/recovery options, and state protection. State can contain sensitive information. |
 | Microsoft Entra ID / Azure RBAC | Human and automation identity and permissions | Provides identity-based access and scope-specific authorization. | Use least privilege and separate human access from workload identities. |
-| GitHub | Source control, pull requests, issues, and documentation | Provides a collaborative, reviewable engineering workflow. | Protect important branches, require reviews/checks, and control repository secrets and permissions. |
-| GitHub Actions | CI/CD automation | Runs tests, builds, scans, and controlled deployment workflows. | Prefer OpenID Connect (OIDC) federation for Azure authentication rather than storing long-lived cloud credentials. Protect production environments. |
+| Azure Repo | Source control, pull requests, issues, and documentation | Provides a collaborative, reviewable engineering workflow. | Protect important branches, require reviews/checks, and control repository secrets and permissions. |
+| Azure Repositery | CI/CD automation | Runs tests, builds, scans, and controlled deployment workflows. | Prefer OpenID Connect (OIDC) federation for Azure authentication rather than storing long-lived cloud credentials. Protect production environments. |
 | Terraform | Infrastructure as Code | Makes infrastructure changes repeatable, reviewable, and version-controlled. | Use modules sensibly, pin versions, protect state, review plans, and handle drift and destructive changes carefully. |
 | Azure Monitor + Log Analytics | Infrastructure metrics and centralized logs | Helps operators investigate resource health, capacity, and operational events. | Logging ingestion and retention cost money; define what to collect and for how long. |
 | Application Insights | Application performance and request telemetry | Helps trace requests, identify failures, and understand latency. | Instrument the application and avoid logging secrets or unnecessary personal data. |

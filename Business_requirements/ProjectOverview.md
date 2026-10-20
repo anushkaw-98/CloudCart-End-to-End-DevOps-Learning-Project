@@ -35,7 +35,7 @@ The learning project will progressively deliver:
 The initial learning path is Azure-based and may use:
 
 - GitHub for source control and project documentation.
-- GitHub Actions for CI/CD.
+- AzureDevops for CI/CD.
 - Terraform for infrastructure provisioning.
 - Azure networking and security services.
 - Azure Kubernetes Service (AKS) for container orchestration.
