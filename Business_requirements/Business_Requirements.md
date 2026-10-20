@@ -23,7 +23,7 @@ This document records the initial brief from the simulated customer, CloudCart L
 
 | ID | Requirement | Initial acceptance idea |
 |---|---|---|
-| FR-01 | Customers can browse available products. | A user can load the product list through the application UI. |
+| FR-01 | Customers can browse available products . | A user can load the product list through the application UI. |
 | FR-02 | Customers can place an order. | A valid order is accepted by the backend and persisted in the database. |
 | FR-03 | The application has distinct frontend, backend, and data tiers. | Requests flow through defined application interfaces; the database is not directly exposed to the internet. |
 | FR-04 | The team can deploy application changes using CI/CD. | A reviewed change can pass automated checks and be deployed using the approved workflow. |
