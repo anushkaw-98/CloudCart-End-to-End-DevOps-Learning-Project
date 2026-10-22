@@ -95,3 +95,9 @@ Do not apply until you understand every change. For an existing resource group, 
 ## Cost notes
 
 Three always-on AKS clusters can be expensive: worker node VMs, disks, load balancers, public IPs, monitoring ingestion, and Log Analytics retention can all cost money. For a learning portfolio, use a single shared dev/test cluster only if you deliberately choose lower isolation, and scale/delete non-production resources when not in use. Do not create Prod until the pipeline and security model are reviewed.
+
+
+## more details on this project
+
+1.please check the Business requirements file for business perspective details
+2.cehck docs folder for project related details
