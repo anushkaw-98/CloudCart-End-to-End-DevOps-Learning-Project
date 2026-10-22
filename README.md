@@ -99,5 +99,5 @@ Three always-on AKS clusters can be expensive: worker node VMs, disks, load bala
 
 ## more details on this project
 
-1.please check the Business requirements file for business perspective details
-2.cehck docs folder for project related details
+- please check the Business requirements file for business perspective details
+- cehck docs folder for project related details
