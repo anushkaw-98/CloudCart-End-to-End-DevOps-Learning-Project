@@ -68,7 +68,8 @@ Deploy to Development -> verify -> Test -> approve -> Production
 
 Infrastructure changes use a controlled Terraform workflow: formatting and validation, security checks, a reviewed plan, approval where required, apply, and post-deployment verification. Application deployment and infrastructure provisioning are related but distinct workflows.
 
-## 4. Proposed Azure Services
+## 4. Proposed Azure Services and design
+![alt text](<azure architecture diagram.png>)
 
 | Component / service | Responsibility | Why it is proposed | Important considerations / alternatives |
 |---|---|---|---|
@@ -125,35 +126,38 @@ These controls reduce particular risks but do not by themselves guarantee a 99.9
 
 The planned Terraform structure will be developed incrementally. A possible starting layout is:
 
-```text
-cloudcart-devops/
-├── README-1.md
-├── README-2.md
-├── README-3.md
-├── docs/
-│   ├── architecture/
-│   ├── decisions/
-│   ├── runbooks/
-│   └── incident-reports/
+
+```
+cloudcart/
 ├── app/
-│   ├── frontend/
-│   └── backend/
+│  
 ├── infra/
+│   ├── bootstrap/
 │   ├── modules/
-│   │   ├── networking/
+│   │   ├── network/
 │   │   ├── aks/
-│   │   ├── container-registry/
-│   │   ├── database/
+│   │   ├── acr/
+│   │   ├── api-management/
+│   │   ├── application-gateway/
+│   │   ├── sql/
+│   │   ├── key-vault/
 │   │   └── monitoring/
 │   └── environments/
 │       ├── dev/
 │       ├── test/
+│       ├── prod/
+│       └── dr/
+├── k8s/
+│   ├── base/
+│   └── overlays/
+│       ├── dev/
+│       ├── test/
 │       └── prod/
-├── deploy/
-│   └── kubernetes/
-└── .github/
-    └── workflows/
-```
+├── pipelines/
+│   └── templates/
+├── azure-pipelines-pr.yml
+├── azure-pipelines-ci-cd.yml
+└── azure-pipelines-infra.yml
 
 This is a starting proposal, not a mandate to create every module immediately. We will add modules when they create useful reuse and clear ownership.
 

@@ -1,0 +1,3 @@
+# Copy to terraform.tfvars; never commit terraform.tfvars.
+acr_name = "REPLACE_WITH_EXISTING_ACR_NAME"
+location = "eastus"

@@ -1,0 +1,12 @@
+.git
+.gitignore
+README.md
+docs/
+infra/
+k8s/
+pipelines/
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+.env

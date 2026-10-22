@@ -1,0 +1,11 @@
+parameters:
+  pythonVersion: '3.12'
+steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: ${{ parameters.pythonVersion }}
+  - script: |
+      python -m pip install --upgrade pip
+      pip install -r app/requirements-dev.txt
+      python -m pytest -q app/tests
+    displayName: Install dependencies and run unit tests
