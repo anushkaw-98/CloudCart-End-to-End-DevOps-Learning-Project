@@ -1,0 +1,139 @@
+trigger:
+  branches:
+    include: [main]
+  paths:
+    exclude: ['docs/**', 'README.md']
+pr: none
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  azureServiceConnection: 'sc-cloudcart-dev-wif'
+  imageRepository: 'cloudcart-api'
+  resourceGroupDev: 'rg-cloudcart-dev'
+  clusterDev: 'aks-cloudcart-dev'
+  resourceGroupTest: 'rg-cloudcart-test'
+  clusterTest: 'aks-cloudcart-test'
+  resourceGroupProd: 'rg-cloudcart-prod'
+  clusterProd: 'aks-cloudcart-prod'
+  namespace: 'cloudcart'
+
+stages:
+  - stage: CI
+    displayName: Test, scan, build once, push artifact
+    jobs:
+      - job: Build
+        steps:
+          - checkout: self
+          - template: pipelines/templates/python-ci.yml
+          - task: AzureCLI@2
+            displayName: Build and push immutable image
+            inputs:
+              azureSubscription: $(azureServiceConnection)
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                set -euo pipefail
+                ACR_NAME="${TF_VAR_acr_name:?Set pipeline variable TF_VAR_acr_name to the existing ACR name}"
+                TAG="$(Build.BuildId)"
+                az acr login --name "$ACR_NAME"
+                SERVER="$(az acr show --name "$ACR_NAME" --query loginServer -o tsv)"
+                IMAGE="$SERVER/$(imageRepository):$TAG"
+                docker build --pull -t "$IMAGE" .
+                docker push "$IMAGE"
+                echo "##vso[task.setvariable variable=imageRef;isOutput=true]$IMAGE"
+                echo "Image pushed: $IMAGE"
+                # Recommended next step: add a pinned image scanner (e.g. Trivy)
+                # and fail the build for agreed critical/high findings.
+            name: publishImage
+
+  - stage: Deploy_Dev
+    displayName: Deploy immutable image to Dev
+    dependsOn: CI
+    variables:
+      imageRef: $[ stageDependencies.CI.Build.outputs['publishImage.imageRef'] ]
+    jobs:
+      - deployment: DeployDev
+        environment: cloudcart-dev
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: AzureCLI@2
+                  displayName: Apply manifests and wait for rollout
+                  inputs:
+                    azureSubscription: $(azureServiceConnection)
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      set -euo pipefail
+                      az aks get-credentials -g "$(resourceGroupDev)" -n "$(clusterDev)" --overwrite-existing
+                      kubectl apply -f k8s/base/namespace.yaml
+                      sed "s|REPLACE_WITH_ACR.azurecr.io/cloudcart-api:REPLACE_WITH_TAG|$(imageRef)|g" k8s/base/deployment.yaml | kubectl apply -f -
+                      kubectl apply -f k8s/base/service.yaml
+                      kubectl apply -f k8s/base/pdb.yaml
+                      kubectl rollout status deployment/cloudcart-api -n "$(namespace)" --timeout=180s
+                      kubectl get pods -n "$(namespace)"
+                      kubectl run cloudcart-smoke-$(Build.BuildId) -n "$(namespace)" --rm -i --restart=Never --image=curlimages/curl:8.10.1 -- curl -fsS http://cloudcart-api/health
+
+  - stage: Deploy_Test
+    displayName: Deploy same image to Test
+    dependsOn: Deploy_Dev
+    condition: succeeded()
+    variables:
+      imageRef: $[ stageDependencies.CI.Build.outputs['publishImage.imageRef'] ]
+    jobs:
+      - deployment: DeployTest
+        environment: cloudcart-test
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: AzureCLI@2
+                  displayName: Deploy and smoke test Test
+                  inputs:
+                    azureSubscription: $(azureServiceConnection)
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      set -euo pipefail
+                      az aks get-credentials -g "$(resourceGroupTest)" -n "$(clusterTest)" --overwrite-existing
+                      kubectl apply -f k8s/base/namespace.yaml
+                      sed "s|REPLACE_WITH_ACR.azurecr.io/cloudcart-api:REPLACE_WITH_TAG|$(imageRef)|g" k8s/base/deployment.yaml | kubectl apply -f -
+                      kubectl apply -f k8s/base/service.yaml
+                      kubectl apply -f k8s/base/pdb.yaml
+                      kubectl rollout status deployment/cloudcart-api -n "$(namespace)" --timeout=180s
+                      kubectl run cloudcart-smoke-$(Build.BuildId) -n "$(namespace)" --rm -i --restart=Never --image=curlimages/curl:8.10.1 -- curl -fsS http://cloudcart-api/health
+
+  - stage: Deploy_Prod
+    displayName: Production release (protected environment)
+    dependsOn: Deploy_Test
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    variables:
+      imageRef: $[ stageDependencies.CI.Build.outputs['publishImage.imageRef'] ]
+    jobs:
+      - deployment: DeployProd
+        environment: cloudcart-prod
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: AzureCLI@2
+                  displayName: Deploy approved image to Prod
+                  inputs:
+                    azureSubscription: $(azureServiceConnection)
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      set -euo pipefail
+                      az aks get-credentials -g "$(resourceGroupProd)" -n "$(clusterProd)" --overwrite-existing
+                      kubectl apply -f k8s/base/namespace.yaml
+                      sed "s|REPLACE_WITH_ACR.azurecr.io/cloudcart-api:REPLACE_WITH_TAG|$(imageRef)|g" k8s/base/deployment.yaml | kubectl apply -f -
+                      kubectl apply -f k8s/base/service.yaml
+                      kubectl apply -f k8s/base/pdb.yaml
+                      kubectl rollout status deployment/cloudcart-api -n "$(namespace)" --timeout=180s
+                      kubectl get deployment cloudcart-api -n "$(namespace)"

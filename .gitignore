@@ -1,0 +1,13 @@
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+terraform.tfvars
+*.auto.tfvars
+.env
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
