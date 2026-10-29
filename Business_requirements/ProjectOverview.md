@@ -85,7 +85,7 @@ By the end, the repository should demonstrate that we can explain and implement 
 This is a learning simulation, not a certified production service. A production deployment would require customer approval, a validated threat model, actual workload and cost estimates, security and compliance review, tested recovery procedures, and operational ownership. Availability targets cannot be guaranteed by architecture diagrams alone; they depend on the complete implementation and the relevant cloud service agreements.
 
 ## 9. Document Guide
+- [`Business_Requirements.md`](Business_Requirements.md) — customer business requirements and initial targets.
+- [`ProjectOverview.md`](ProjectOverview.md1.md) — project overview and learning journey.
 
-- [`README-1.md`](README-1.md) — project overview and learning journey.
-- [`README-2.md`](README-2.md) — customer business requirements and initial targets.
-- [`README-3.md`](README-3.md) — proposed architecture and service selection rationale.
+- [`Proposed_Solution.md`](Proposed_Solution.md) — proposed architecture and service selection rationale.
