@@ -86,6 +86,4 @@ This is a learning simulation, not a certified production service. A production 
 
 ## 9. Document Guide
 - [`Business_Requirements.md`](Business_Requirements.md) — customer business requirements and initial targets.
-- [`ProjectOverview.md`](ProjectOverview.md1.md) — project overview and learning journey.
-
 - [`Proposed_Solution.md`](Proposed_Solution.md) — proposed architecture and service selection rationale.
