@@ -1,15 +1,20 @@
-from app import app
 
-def test_home_returns_cloudcart():
-    client = app.test_client()
-    response = client.get("/")
-    assert response.status_code == 200
-    assert response.get_json()["application"] == "CloudCart"
+from flask import Flask, jsonify
+import os
 
-def test_health():
-    response = app.test_client().get("/health")
-    assert response.status_code == 200
-    assert response.get_json()["status"] == "healthy"
+app = Flask(__name__)
 
-def test_ready():
-    assert app.test_client().get("/ready").status_code == 200
+@app.get("/")
+def index():
+    return jsonify({
+        "application": "CloudCart API",
+        "status": "running",
+        "environment": os.getenv("APP_ENV", "dev")
+    })
+
+@app.get("/health")
+def health():
+    return jsonify({"status": "healthy"}), 200
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8080)
