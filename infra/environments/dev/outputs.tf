@@ -1,3 +1,28 @@
-output "resource_group_name" { value = azurerm_resource_group.this.name }
-output "aks_name" { value = module.aks.name }
-output "acr_login_server" { value = data.azurerm_container_registry.shared.login_server }
+
+output "resource_group_name" {
+  value = azurerm_resource_group.main.name
+}
+
+output "acr_name" {
+  value = azurerm_container_registry.main.name
+}
+
+output "acr_login_server" {
+  value = azurerm_container_registry.main.login_server
+}
+
+output "aks_name" {
+  value = azurerm_kubernetes_cluster.main.name
+}
+
+output "aks_resource_group" {
+  value = azurerm_resource_group.main.name
+}
+
+output "key_vault_name" {
+  value = azurerm_key_vault.main.name
+}
+
+output "log_analytics_workspace_id" {
+  value = azurerm_log_analytics_workspace.main.id
+}
